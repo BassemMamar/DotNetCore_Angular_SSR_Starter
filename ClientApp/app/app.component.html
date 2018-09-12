@@ -1,6 +1,31 @@
-<div class="container-fluid">
+<!-- <div class="container-fluid">
   <app-nav-menu></app-nav-menu>
   <div class="col-12 col-lg-9 body-content">
     <router-outlet></router-outlet>
   </div>
+</div> -->
+
+<!--The content below is only a placeholder and can be replaced.-->
+<div>
+  <h2>
+    Here are some links to help you start:
+  </h2>
+  <button (click)="handelChangeTheme()" class="btn btn-primary">Load Custom Css</button>
+
+</div>
+
+<ul>
+  <li>
+    <a [routerLink]="['/home']" routerLinkActive="active">Home</a>
+  </li>
+  <li>
+    <a [routerLink]="['/Management']" routerLinkActive="active">Management</a>
+  </li>
+  <li>
+    <a [routerLink]="['/Investigation']" routerLinkActive="active">Investigation </a>
+  </li>
+</ul>
+
+<div class="container">
+  <router-outlet></router-outlet>
 </div>

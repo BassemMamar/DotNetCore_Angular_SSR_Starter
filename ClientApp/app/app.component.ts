@@ -1,18 +1,16 @@
-import {
-  Component,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, NavigationStart, NavigationError } from '@angular/router';
 import { REQUEST } from '@nguniversal/aspnetcore-engine/tokens';
 // i18n support
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { LinkService } from './shared/link.service';
+import { LoggerService } from './core/base/logger/logger.service';
+import { PageLoaderService } from './core/components/page-loader/page-loader.service';
+
+// maybe should not be here
 
 @Component({
   selector: 'app-root',
@@ -29,9 +27,14 @@ export class AppComponent implements OnInit, OnDestroy {
   private routerSub$: Subscription;
   private request;
 
+  // my starter
+  currentTheme: string;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
+    private logger: LoggerService,
+    private pageLoader: PageLoaderService,
     private title: Title,
     private meta: Meta,
     private linkService: LinkService,
@@ -57,6 +60,10 @@ export class AppComponent implements OnInit, OnDestroy {
     // Change "Title" on every navigationEnd event
     // Titles come from the data.title property on all Routes (see app.routes.ts)
     this._changeTitleOnNavigation();
+
+    // from my starter
+    const langValue = this.activatedRoute.snapshot.paramMap.getAll('lang');
+    this.logger.info(`AppComponent - Lang value is: ${langValue}`);
   }
 
   ngOnDestroy() {
@@ -79,6 +86,27 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(event => {
         this._setMetaAndLinks(event);
       });
+
+
+    // my starter
+    this.router.events.subscribe((route) => {
+      /* Route Navigation Start */
+      if (route instanceof NavigationStart) {
+        this.pageLoader.setLoading(true);
+      }
+
+      /* Route Navigation End */
+      if (route instanceof NavigationEnd) {
+        this.pageLoader.setLoading(false);
+        //  this.logger.log('NavigationEnd => route.url => ', route.url);
+      }
+
+      /* Route Navigation Error */
+      if (route instanceof NavigationError) {
+        this.pageLoader.setLoading(false);
+      }
+
+    });
   }
 
   private _setMetaAndLinks(event) {
@@ -98,6 +126,26 @@ export class AppComponent implements OnInit, OnDestroy {
 
     for (let i = 0; i < linksData.length; i++) {
       this.linkService.addTag(linksData[i]);
+    }
+  }
+
+
+
+  // my starter
+  handelChangeTheme(event) {
+
+    const element = $('head'); // this.document.getElementsByTagName('head')[0];
+    $('#darktheme').remove();
+    $('#lighttheme').remove();
+
+    if (this.currentTheme === 'dark') {
+      const darktheme = '<link id="darktheme" type="text/css" rel="stylesheet" href="src/assets/css/style-rtl.css"/>';
+      element.append(darktheme);
+      this.currentTheme = 'light';
+    } else {
+      const lighttheme = '<link id="lighttheme" type="text/css" rel="stylesheet" href="src/assets/css/style.css" />';
+      element.append(lighttheme);
+      this.currentTheme = 'dark';
     }
   }
 }

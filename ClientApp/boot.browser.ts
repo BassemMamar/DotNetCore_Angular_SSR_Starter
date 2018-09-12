@@ -1,7 +1,10 @@
+import 'reflect-metadata';
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { AppModule } from './app/app.module.browser';
+
 import './polyfills/browser.polyfills';
+import { AppModule } from './app/app.module.browser';
+
 
 // // Enable either Hot Module Reloading or production mode
 if (module['hot']) {
